@@ -15,7 +15,7 @@ import module namespace config="http://papyri.uni-koeln.de:8080/papyri/config" a
 import module namespace app="http://papyri.uni-koeln.de:8080/papyri/templates" at "app.xql";
 import module namespace helpers="http://papyri.uni-koeln.de:8080/papyri/helpers" at "helpers.xqm";
 import module namespace stuecke="http://papyri.uni-koeln.de:8080/papyri/stuecke" at "stuecke.xqm";
-import module namespace search="http:papyri.uni-koeln.de:8080/papyri/search" at "search.xqm";
+import module namespace search="http://papyri.uni-koeln.de:8080/papyri/search" at "search.xqm";
 
 declare option exist:serialize "method=html5 media-type=text/html enforce-xhtml=yes";
 
