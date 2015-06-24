@@ -11,19 +11,19 @@ declare function stuecke:slides-sammlung($node as node(), $model as map(*)){
         <div class="wrap">
             <div class="md">
                 <span class="label">Inventarnummer:</span>
-                <span class="value">{stuecke:get-invnr($st)}</span>
+                <span class="value">{stuecke:get-invno($st)}</span>
                 <span class="label">Datierung:</span>
-                <span class="value">{stuecke:get-date($st)}</span>
+                <span class="value">{stuecke:get-dates($st)}</span>
                 <span class="label">Herkunft:</span>
-                <span class="value">{stuecke:get-place($st)}</span>
+                <span class="value">{stuecke:get-origplaces($st)}</span>
                 <span class="label">Material:</span>
-                <span class="value">{stuecke:get-material($st)}</span>
+                <span class="value">{stuecke:get-materials($st)}</span>
                 <span class="label">Text{if ($anzahlTexte gt 1) then "e" else ()}:</span>
                 <span class="value">{stuecke:get-text-titles($st)}</span>
             </div>
             <div class="img">
                 {if (stuecke:get-preferred-image($st) != "")
-                 then <img src="{stuecke:get-preferred-image($st)}" alt="{stuecke:get-invnr($st)}" />
+                 then <img src="{stuecke:get-preferred-image($st)}" alt="{stuecke:get-invno($st)}" />
                 else "ohne Bild"}
             </div>
         </div>
@@ -41,16 +41,16 @@ declare function stuecke:slides-texte($node as node(), $model as map(*)){
                 <span class="label">Publikationsnummer:</span>
                 <span class="value">{$text/tei:note[@type="publication"]/data(.)}</span>
                 <span class="label">Datierung:</span>
-                <span class="value">{stuecke:get-date($text)}</span>
+                <span class="value">{stuecke:get-dates($text)}</span>
                 <span class="label">Herkunft:</span>
-                <span class="value">{stuecke:get-place($text)}</span>
+                <span class="value">{stuecke:get-origplaces($text)}</span>
             </div>
             <div class="text">
                 {stuecke:get-text-snippet($text/ancestor::tei:TEI)}
             </div>
             <div class="img">
                 {if (stuecke:get-preferred-image($text/ancestor::tei:TEI) != "")
-                 then <img src="{stuecke:get-preferred-image($text/ancestor::tei:TEI)}" alt="{stuecke:get-invnr($text)}" />
+                 then <img src="{stuecke:get-preferred-image($text/ancestor::tei:TEI)}" alt="{stuecke:get-invno($text)}" />
                 else "ohne Bild"}
             </div>
         </div>
@@ -84,27 +84,62 @@ declare function stuecke:get-preferred-image($st as node()){
                     else concat($prevURL, ".png")
     return $prevURL
 };
-
-declare function stuecke:get-date($st as node()){
-    for $date in $st//tei:note[@type="orig_date"]/tei:date
-    let $type := $date/@type
-    return if ($type = "Zeitpunkt") then $date/@when/data(.)
-           else if ($type = "Zeitraum") then concat($date/@notBefore/data(.), "-", $date/@notAfter/data(.))
-           else "Datum nicht gefunden."
+declare function stuecke:get-invno($res as document-node()){
+    $res//tei:idno[1]
 };
 
-declare function stuecke:get-material($st as node()){
-    $st//tei:material/tei:material/data(.)
+declare function stuecke:get-collection($res as document-node()) {
+  $res//tei:msDesc/tei:msIdentifier/tei:collection
 };
 
-declare function stuecke:get-invnr($st as node()){
-    $st//tei:msIdentifier/tei:idno/data(.)
+declare function stuecke:get-materials($res as document-node()){
+    string-join($res//tei:msDesc/tei:physDesc//tei:material/tei:material, "; ")
 };
 
-declare function stuecke:get-place($st as node()){
-    $st//tei:note[@type="orig_place"]//tei:placeName/data(.)
+declare function stuecke:get-origplaces($res as document-node()){
+    string-join($res//tei:note[@type="orig_place"]//tei:placeName, "; ")
+};
+
+declare function stuecke:get-dimensions($id as xs:string){
+    let $dimensions := doc(concat("/db/apps/papyri/data/stuecke/", $id ,".xml"))//tei:msDesc/tei:physDesc//tei:dimensions
+    let $width := let $width := $dimensions/tei:width
+                  return if ($width != "") then concat("Breite: ", $width, " ", $width/@unit) else ()
+    let $height := let $height := $dimensions/tei:height
+                   return if ($height != "") then concat("Höhe: ", $height, " ", $height/@unit) else ()
+    let $depth := let $depth := $dimensions/tei:depth
+                  return if ($depth != "") then concat("Tiefe: ", $depth, " ", $depth/@unit) else ()
+    let $length := let $length := $dimensions/tei:dim[@type="length"]
+                   return if ($length != "") then concat("Länge: ", $length, " ", $length/@unit) else ()
+    let $diameter := let $diameter := $dimensions/tei:dim[@type="diameter"]
+                     return if ($diameter != "") then concat("Durchmesser: ", $diameter, " ", $diameter/@unit) else ()
+    let $circumference := let $circumference := $dimensions/tei:dim[@type="circumference"]
+                          return if ($circumference != "") then concat("Umfang: ", $circumference, " ", $circumference/@unit) else ()
+    let $dimensions := string-join(($width, $height, $depth, $length, $diameter, $circumference), "; ")
+    return $dimensions
+};
+
+declare function stuecke:get-dates($res as node()){
+    let $dates := for $date in $res//tei:note[@type="orig_date"]/tei:date
+                return if ($date/@type = "Zeitraum")
+                       then if ($date[not(@notBefore)]) then concat("frühestens ", $date/@notAfter/data(.))
+                            else if ($date[not(@notAfter)]) then concat("spätestens ", $date/@notBefore/data(.))
+                            else concat($date/@notBefore, " – ", $date/@notAfter)
+                       else $date/@when/data(.)
+    
+    return string-join($dates, "; ")
+};
+
+declare function stuecke:get-languages($res as node()) {
+  string-join($res//tei:textLang//tei:term[@type="language"], "; ")
+};
+
+declare function stuecke:get-scripts($res as node()) {
+  let $scripts := $res//tei:textLang//tei:term[@type="script"]
+  for $script at $index in $scripts 
+    where (not(empty($script))) 
+    return if ($index > 1) then "; " else "" || $script
 };
 
 declare function stuecke:get-text-titles($st){
-    string-join($st//tei:msItemStruct/tei:title, "; ")
+    string-join($st//tei:title, "; ")
 };

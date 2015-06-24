@@ -1,3 +1,60 @@
+/* Facettiertes Browsing */
+
+a.papyri-facet-active {
+    font-weight: bold;
+}
+
+
+/* Komplexe Suche: Suchformular; */
+
+.papyri-complex-search {
+    padding-bottom: 1em;
+}
+
+.papyri-complex-search label {
+    display: inline-block;
+    padding-right: 2em;
+}
+
+.papyri-complex-search .combine, .papyri-complex-search .field, .papyri-complex-search .operator {
+    margin-right: 0.5em;
+}
+
+.papyri-complex-search .combine, .papyri-complex-search .operator {
+    display: inline-block;
+    width: 10em;
+} 
+
+
+/* Komplexe Suche: Suchergebnisse */
+
+.papyri-search-results {
+    border-top: solid 1px black;
+    padding-top: 1em;
+}
+
+.papyri-search-results .constraints .field { font-weight: bold; }
+.papyri-search-results .constraints .operator { font-style: italic; }
+
+.papyri-search-results .result-no {
+    margin-top: 1em;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.papyri-search-results .results {
+    margin-top: 1em;
+}
+
+.papyri-search-results .one-result {
+    padding: 0.5em;
+}
+
+.papyri-search-results .results div > div:nth-child(odd) li {
+    background-color: #f6f2e8;
+}
+
+
 /* Application styles could go here */
 body {
     padding-top: 20px;
