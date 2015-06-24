@@ -16,15 +16,6 @@ declare namespace tei="http://www.tei-c.org/ns/1.0";
 
 declare option exist:serialize "method=xml media-type=text/xml indent=yes";
 
-(:~
- : This is a sample templating function. It will be called by the templating module if
- : it encounters an HTML element with a class attribute: class="app:test". The function
- : has to take exactly 3 parameters.
- : 
- : @param $node the HTML node with the class attribute which triggered this call
- : @param $model a map containing arbitrary data - used to pass information between template calls
- :)
-
 (: Navigation :)
 declare function app:menu($node as node(), $model as map(*)){
     let $resource := tokenize(request:get-url(), "/")[last()]
@@ -71,16 +62,6 @@ declare function app:menu($node as node(), $model as map(*)){
                 <li>{if ($resource = "about.html") then attribute class {"active"} else ()}<a href="{$helpers:app-root}/about">About</a></li>
              </ul>
         </nav>
-};
-
-(: einfaches Suchformular (macht noch nichts) :)
-declare function app:search($node as node(), $model as map(*)){
-    <form class="navbar-form navbar-left" role="search">
-        <div class="form-group">
-            <input type="text" class="form-control" placeholder="Suche" />&#x00A0;
-            <input type="submit" value="Los!" />
-        </div>
-    </form>
 };
 
 (: LOGIN-Formular :)
@@ -214,13 +195,6 @@ declare function app:list-items($node as node(), $model as map(*)){
     return ($pageNav, $table, $pageNav)
 };
 
-
-(: Blätterfunktion: nur eine bestimmte Seite mit Treffern anzeigen :)
-(:declare function app:get-page($node as node(), $model as map(*), $nodes as item()*, $maxNum as xs:integer, $page as xs:integer){
-    let $numItems := count($nodes)
-    let $numPages := round($numItems div $maxNum)
-    return subsequence($nodes, ($page - 1) * $maxNum + 1, $maxNum)
-};:)
 
 (: Blätterfunktion: Seitennavigation anzeigen :)
 declare function app:get-page-nav($node as node(), $model as map(*)){
@@ -395,6 +369,9 @@ declare function app:parse-search-query() {
 
   return $constraints
 };
+
+(: ########################################### KOMPLEXE SUCHE ################################################ :)
+
 
 declare %templates:wrap function app:post-test($node as node(), $model as map(*)) as map(*) {
   
