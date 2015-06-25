@@ -54,13 +54,6 @@ $(function() {
     e.preventDefault();
     fields = $(searchFields).children('fieldset');
     console.log(fields);
-
-
-
-
-
-
-    
     lastField = $(fields).last();
     getField(
       'material',
@@ -71,8 +64,18 @@ $(function() {
     );
   });
 
-  $(searchFields).on('click', 'a.remove', function(e) {
-    e.preventDefault()
+  $(searchFields).on('click', '.add-or', function(e) {
+    e.preventDefault();
+    console.log("hier");
+    parentFieldset = $(this).parent();
+    termField = $(parentFieldset).find('.term').first();
+
+    $(parentFieldset).append('<div class="or"></div>').append($(termField).clone());
+    
+  });
+
+  $(searchFields).on('click', '.remove', function(e) {
+    e.preventDefault();
     parentFieldset = $(this).parent();
     parentFieldset.remove();
   });

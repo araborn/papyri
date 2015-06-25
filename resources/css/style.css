@@ -25,6 +25,11 @@ a.papyri-facet-active {
     width: 10em;
 } 
 
+.papyri-complex-search .or {
+    float: right;
+    clear: right;
+}
+
 
 /* Komplexe Suche: Suchergebnisse */
 

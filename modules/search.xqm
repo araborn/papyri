@@ -21,11 +21,10 @@ declare variable $search:data-path := "/db/apps/papyri/data/stuecke";
  :          *  "combinationOperator": wie die Suchbedingung mit den andren kombiniert werden soll
  :                  gültige Werte z.Zt. "and" für UND sowie "nand" für UND NICHT
  :          * "searchOperator": Vergleichsoperator für die Bedingung (siehe $search:ops)
- :          * "searchTerm": Suchbegriff
+ :          * "searchTerm": Suchbegriff oder Sequenz von mit ODER zu kombinierenden Suchbegriffen
  : @param $resultType: "item" für Suche nach Textträgern, "text" für Suche nach Texten
  : @return Sequenz von <tei:TEI>-Nodes (bei resultType $search:cItem) bzw. <tei:msItemStruct>-Nodes (bei resultType $search:cText)
  :)
-
 declare function search:search($constraints as map()*, $resultType as xs:string) {
 
     let $collection := xmldb:xcollection($search:data-path)
@@ -76,17 +75,23 @@ declare function search:resolve($base as node()*, $constraints as map()*) {
 		let $field := $search:fields($constraint("searchField")) 
         let $resolveFunction := $field($search:kFieldResolve)
 
-		let $results := if ($constraint("searchTerm") != "") then
-                            for $item at $index in $base
-                                where   if ($constraint("combinationOperator") = 'nand') then 
-                                            not($resolveFunction($item, $searchOp, $constraint('searchTerm')))
-                                        else
-                                            $resolveFunction($item, $searchOp, $constraint('searchTerm'))
-                                return $item
+		let $results := for $searchTerm in $constraint("searchTerm")
+                            return for $item at $index in $base
+                                                where if ($constraint("combinationOperator") = 'nand') then 
+                                                        not($resolveFunction($item, $searchOp, $searchTerm))
+                                                    else
+                                                        $resolveFunction($item, $searchOp, $searchTerm)
+                                            return $item
 
-                        else $base
 
-		return search:resolve($results, subsequence($constraints, 2))
+        (: Filtere Duplikate bei ODER-Verknüpfungen (mehrere Suchbegriffe für ein Feld) :)
+        let $distinctResults := if (count($constraint("searchTerm")) = 1) then 
+                                    $results
+                                 else 
+                                    for $resultID in distinct-values($results/*[1]/@xml:id)
+                                        return $results[*/@xml:id = $resultID]
+
+		return search:resolve($distinctResults, subsequence($constraints, 2))
 	   
     else 
 		$base

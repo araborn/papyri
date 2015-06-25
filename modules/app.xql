@@ -519,6 +519,24 @@ declare function app:get-search-field($node as node(), $model as map(*)) {
   return app:create-search-field($field, $index)
 };
 
+declare function app:create-search-term-field($field as map(), $index as xs:integer, $prefillValue as xs:string*) {
+  let $fieldName := concat('searchTerm-', $index)
+                                return element {$field('input')/name()} {
+                                (attribute {'name'} {$fieldName}, 
+                                 attribute {'class'} {"term"},
+                                  attribute {'value' } { $prefillValue },
+                                  $field('input')/@*, $field('input')/*,
+                                  if ($field('input')/name() = "select") then
+                                    app:form-control-select-options($prefillValue, (
+                                      <option value="">(Alle)</option>, 
+                                      for $value in $field('values')()
+                                        where $value != "" 
+                                        return <option value="{$value}">{$value}</option>
+                                    ))
+                                  else ()
+                                  )}
+};
+
 declare function app:create-search-field($fieldID as xs:string, $index as xs:integer) {
 
     let $prefillSearchField := request:get-parameter(concat('searchTerm-', $index), "")
@@ -547,8 +565,9 @@ declare function app:create-search-field($fieldID as xs:string, $index as xs:int
             return ($attSelected, $search:fields($selectField)("title"))
           }
           </option>
-      let $orButton := <a href="#">oder</a>
+      let $orButton := <a class="add-or" href="#">oder</a>
       let $removeButton := if ($index = 1) then () else <a href="#" class="remove"> - </a>
+
     return 
     <fieldset id="{$fieldID}" class="search-field">
         <select class="combine" name="{concat('combinationOperator-', $index)}">
@@ -560,23 +579,15 @@ declare function app:create-search-field($fieldID as xs:string, $index as xs:int
         </select>
         <!--<label for="{$field('title')}">{upper-case(substring($field('title'), 1, 1)) || substring($field('title'), 2)}</label>-->
         {$searchOperatorInput}
-        { let $fieldName := concat('searchTerm-', $index)
-          return element {$field('input')/name()} {
-          (attribute {'name'} {$fieldName}, 
-            attribute {'value' } { $prefillSearchField },
-            $field('input')/@*, $field('input')/*,
-            if ($field('input')/name() = "select") then
-              app:form-control-select-options($fieldName, (
-                <option value="">(Alle)</option>, 
-                for $value in $field('values')()
-                  where $value != "" 
-                  return <option value="{$value}">{$value}</option>
-              ))
-            else ()
-            )}
-          }
+        {
+          app:create-search-term-field($field, $index, $prefillSearchField[1])
+        }
         &#160;{$orButton}
         &#160;{$removeButton}
+        { 
+          for $searchTerm in subsequence($prefillSearchField, 2)
+            return <div class="or">{app:create-search-term-field($field, $index, $searchTerm)}</div>
+        }
     </fieldset>
 };
 
@@ -606,12 +617,10 @@ declare function app:form-control-resultType($node as node(), $model as map(*)) 
 };
 
 (: Vorselektieren Suchbegriffs in Dropdown-Listen der komplexen Suche anhand der Query-Parameter :)
-declare function app:form-control-select-options($paramName as xs:string, $options as element(option)*) {
-  let $paramQueryValue := request:get-parameter($paramName, "")
-  
-  return for $option in $options     
-                let $optionValue := $option/@value/data(.)
-                return if ($paramQueryValue = $optionValue) then
-                  element {"option"} {(attribute {"selected"} {"selected"}, $option/@*, $option/*, $option/text())}
-                else $option
+declare function app:form-control-select-options($paramQueryValue as xs:string, $options as element(option)*) {  
+  for $option in $options     
+            let $optionValue := $option/@value/data(.)
+            return if ($paramQueryValue = $optionValue) then
+              element {"option"} {(attribute {"selected"} {"selected"}, $option/@*, $option/*, $option/text())}
+            else $option
 };
