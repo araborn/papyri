@@ -2,3 +2,6 @@ data/*
 modules/admin.xqm
 *.properties
 *.xpr
+*.sublime-project
+*.sublime-workspace
+.DS_Store

@@ -2,69 +2,60 @@
     <div class="page-header">
         <h1>Komplexe Suche</h1>
     </div>
+
+    <!-- Suchformular -->
     <div class="row-fluid">
-        <!--<div class="app:list-items?type=datierung span12">
-            Stückliste
-        </div>-->
-        <div>
-            <h3>Inventarnummer:</h3>
-            <select name="Inventarnummer">
-                <option>00002</option>
-                <option>00003</option>
-                <option>00006</option>
-                <option>00008</option>
-                <option>...</option>
-            </select>
+        <form method="get" class="papyri-complex-search">
+            <h3>Suche nach</h3>
+            <fieldset id="result-type">
+                <input class="app:form-control-resultType" id="t_item" type="radio" name="resultType" value="item" />
+                <label for="t_item">Textträgern</label>
+                <input class="app:form-control-resultType" id="t_text" type="radio" name="resultType" value="text" />
+                <label for="t_text">Einzelnen Texten</label>
+            </fieldset>
+            <div class="search-fields app:search-fields">
+                Die Suchfelder
+            </div>
+          <div><a href="#" id="add">Bedinung hinzufügen</a></div>
+         <input type="submit" value="Los!"></input>    
+        </form>
+    </div>
+
+    <!-- Suchergebnisse -->
+    <div class="templates:if-parameter-set?param=resultType">
+        <div class="papyri-search-results app:post-test">
+
+            <div class="app:get-page-nav">Seitennavigation</div>
+
+            <!-- Zusammenfassung der Suchbedingungen -->
+            <div class="constraints templates:each?from=constraints&amp;to=constraint">
+                <span class="field app:constraint-print-field">Suchfeld</span>&#160;
+                <span class="operator app:constraint-print-op">Operator</span>&#160;
+                <span class="term app:constraint-print-term">Suchwert</span>
+            </div>
+
+            <!-- Fehlermeldung bei falschen / fehlenden Suchparametern -->
+            <div class="error app:search-print-error"><span>FEHLER: </span></div>
+            
+            <!-- Liste der Ergebnisse -->
+            <div class="result-no"><span class="app:search-print-result-no">X</span> Treffer</div>
+
+            <ul class="results">
+
+                <!-- Ergebnisse für Suche nach Textträgern -->
+                <div class="templates:each?from=items&amp;to=result">
+                    <li class="one-result">
+                        <div class="app:search-print-item-result">Ein Textträger</div>
+                    </li>
+                </div>
+
+                <!-- Ergebnisse für Suche nach Texten -->
+                <div class="templates:each?from=texts&amp;to=result">
+                    <li class="one-result">
+                        <div class="app:search-print-text-result">Ein Text</div>
+                    </li>
+                </div>
+            </ul>
         </div>
-        <h2>Textträger</h2>
-        <div>
-            <h3>Herkunftsort:</h3>
-            <select name="Herkunftsort">
-                <option>Memphites</option>
-                <option>Oxyrhynchos</option>
-                <option>...</option>
-            </select>
-        </div>
-        <div>
-            <h3>Material</h3>
-            <select name="Material">
-                <option>Papyrus</option>
-                <option>Pergament</option>
-                <option>Papier</option>
-                <option>Leinen</option>
-                <option>Leder</option>
-                <option>Sonstiges</option>
-            </select>
-        </div>
-        <h2>Texte</h2>
-        <div>
-            <h3>Textart:</h3>
-            <label for="dokumentarisch">dokumentarisch</label>
-            <input type="radio" id="dokumentarisch" name="Textart" value="dokumentarisch"></input>
-            <br />
-            <label for="literarisch">literarisch</label>
-            <input type="radio" id="literarisch" name="Textart" value="literarisch"></input>
-            <br />
-            <label for="paraliterarisch">in Bearbeitung</label>
-            <input type="radio" id="paraliterarisch" name="Textart" value="paraliterarisch"></input>
-            <label for="unbekannt">unbekannt</label>
-            <input type="radio" id="unbekannt" name="Textart" value="unbekannt"></input>
-        </div>
-        <div>
-            <h3>Publikationsstatus:</h3>
-            <label for="publiziert">publiziert</label>
-            <input type="radio" id="publiziert" name="Publikationsstatus" value="publiziert"></input>
-            <br />
-            <label for="unpubliziert">unpubliziert</label>
-            <input type="radio" id="unpubliziert" name="Publikationsstatus" value="unpubliziert"></input>
-            <br />
-            <label for="inBearbeitung">in Bearbeitung</label>
-            <input type="radio" id="inBearbeitung" name="Publikationsstatus" value="in Bearbeitung"></input>
-        </div>
-        <div>
-            <h3>Volltextsuche:</h3> 
-            <input type="text" name="Volltextsuche"></input>
-        </div>
-        <input type="submit" name="Submit" value="Los!"></input>
     </div>
 </div>

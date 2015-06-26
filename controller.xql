@@ -2,6 +2,7 @@ xquery version "3.0";
 
 import module namespace auth="http://papyri.uni-koeln.de:8080/papyri/auth" at "modules/auth.xqm";
 import module namespace config="http://papyri.uni-koeln.de:8080/papyri/config" at "modules/config.xqm";
+import module namespace autocomplete="http://papyri.uni-koeln.de:8080/papyri/autocomplete" at "modules/autocomplete.xqm";
 
 declare variable $exist:path external;
 declare variable $exist:resource external;
@@ -9,6 +10,11 @@ declare variable $exist:controller external;
 declare variable $exist:prefix external;
 declare variable $exist:root external;
 declare variable $exist:app := concat($config:webapp-root,'/');
+
+
+
+
+
 
 if ($exist:path eq "/" or $exist:path eq "") then
     (: forward root path to index.xql :)
@@ -38,6 +44,52 @@ else if ($exist:path eq "/logout") then
         else <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
                 <redirect url="http://papyri.uni-koeln.de{$path}" />
              </dispatch>
+else if (starts-with($exist:path, "/query")) then
+    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+        <forward url="{$exist:controller}/templates/query.html" />
+        <view>
+            <forward url="{$exist:controller}/modules/view.xql" />
+        </view>
+        <error-handler>
+            <forward url="{$exist:controller}/error-page.html" method="get"/>
+            <forward url="{$exist:controller}/modules/view.xql"/>
+        </error-handler>
+    </dispatch>
+(: JSON Autocomplete :)
+else if (starts-with($exist:path, "/values")) then
+    autocomplete:lookup()
+(: Facettierte Übersicht :)
+else if (starts-with($exist:path, "/uebersicht")) then
+    <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+        <forward url="{$exist:controller}/pages/objekte/uebersicht.html" />
+        <view>
+            <forward url="{$exist:controller}/modules/view.xql" />
+        </view>
+        <error-handler>
+            <forward url="{$exist:controller}/error-page.html" method="get"/>
+            <forward url="{$exist:controller}/modules/view.xql"/>
+        </error-handler>
+    </dispatch>
+(: Liste der Objekte :)
+else if (starts-with($exist:path, "/objekte")) then
+    let $components := text:groups($exist:path, "/objekte/nach-([a-z]+)/?([^/]+)?/?$")
+    let $forward := if (($components)[3])
+        then "/pages/objekte/stuecke.html"
+        else "/pages/objekte/facette.html"
+
+    return <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
+        <forward url="{$exist:controller}{$forward}" />
+        <view>
+            <forward url="{$exist:controller}/modules/view.xql">
+                 <add-parameter name="facet" value="{$components[2]}" />
+                 <add-parameter name="value" value="{util:unescape-uri($components[3], 'UTF-8')}" />
+            </forward>
+        </view>
+        <error-handler>
+            <forward url="{$exist:controller}/error-page.html" method="get"/>
+            <forward url="{$exist:controller}/modules/view.xql"/>
+        </error-handler>
+    </dispatch>
 (: Unterseiten 1. Ebene :)
 else if (matches($exist:path, "^/[a-z-]+$")) then
     <dispatch xmlns="http://exist.sourceforge.net/NS/exist">
