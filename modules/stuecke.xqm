@@ -4,7 +4,7 @@ module namespace stuecke="http://papyri.uni-koeln.de:8080/papyri/stuecke";
 declare namespace tei="http://www.tei-c.org/ns/1.0";
 
 declare function stuecke:slides-sammlung($node as node(), $model as map(*)){
-    for $st in (collection("/db/apps/papyri/data/stuecke")//tei:TEI)[(.//tei:idno)[1] = ("O. 0397", "T. 032", "00055", "03288", "03852", "05512", "10212", "21351", "00904 + P.Rob. inv. 38", "00906; P.Duke Inv. 769", "21351_21376")]
+    for $st in (collection("/db/apps/papyri/data/stuecke"))[(.//tei:idno)[1] = ("O. 0397", "T. 032", "00055", "03288", "03852", "05512", "10212", "21351", "00904 + P.Rob. inv. 38", "00906; P.Duke Inv. 769", "21351_21376")]
     let $anzahlTexte := count($st//tei:msItemStruct)
     return
     <div class="bg">
@@ -84,19 +84,19 @@ declare function stuecke:get-preferred-image($st as node()){
                     else concat($prevURL, ".png")
     return $prevURL
 };
-declare function stuecke:get-invno($res as document-node()){
+declare function stuecke:get-invno($res as node()){
     $res//tei:idno[1]
 };
 
-declare function stuecke:get-collection($res as document-node()) {
+declare function stuecke:get-collection($res as node()) {
   $res//tei:msDesc/tei:msIdentifier/tei:collection
 };
 
-declare function stuecke:get-materials($res as document-node()){
+declare function stuecke:get-materials($res as node()){
     string-join($res//tei:msDesc/tei:physDesc//tei:material/tei:material, "; ")
 };
 
-declare function stuecke:get-origplaces($res as document-node()){
+declare function stuecke:get-origplaces($res as node()){
     string-join($res//tei:note[@type="orig_place"]//tei:placeName, "; ")
 };
 
