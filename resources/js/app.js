@@ -66,11 +66,11 @@ $(function() {
 
   $(searchFields).on('click', '.add-or', function(e) {
     e.preventDefault();
-    console.log("hier");
     parentFieldset = $(this).parent();
     termField = $(parentFieldset).find('.term').first();
 
-    $(parentFieldset).append('<div class="or"></div>').append($(termField).clone());
+    orDiv = $('<div class="or"></div>').append($(termField).clone())
+    $(parentFieldset).append(orDiv);
     
   });
 
