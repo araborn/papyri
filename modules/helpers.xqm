@@ -15,6 +15,12 @@ declare variable $helpers:file-path := $config:file-path;
 declare variable $helpers:request-path := $config:request-path;
 declare variable $helpers:webfile-path := $config:webfile-path;
 
+declare function helpers:print-app-root-js($node as node(), $model as map(*)) {
+  <script type="text/javascript">
+      var papyri_app_root = "{$helpers:app-root}";
+  </script>
+};
+
 declare function helpers:app-root($node as node(), $model as map(*)){
  let $elname := $node/node-name(.)
  

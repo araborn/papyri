@@ -24,7 +24,7 @@ $(function() {
 
   getField = function(name, index, callback) {
     $.ajax({
-      url: '/exist/apps/papyri/search-field',
+      url: papyri_app_root + '/search-field',
       data: {
         name: name,
         index: index
