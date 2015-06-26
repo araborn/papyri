@@ -115,8 +115,8 @@ declare function app:list-facet($node as node(), $model as map(*), $facet as xs:
                       return for $century in distinct-values(for $teiDate in $stuecke//tei:note[@type="orig_date"]/tei:date return $teiDate/@*[name() = "notBefore"or name() = "notAfter" or name() = "when"]/date:format-century(data(.)))
                           order by $century
                           return map {
-                            "display": $century,
-                            "value": $century
+                            "display" := $century,
+                            "value" := $century
                           }  
                       (:return for-each(distinct-values(for-each($stuecke//tei:note[@type="orig_date"]/tei:date) , function($date){
                           if ($date/@type = "Zeitraum")
@@ -129,8 +129,8 @@ declare function app:list-facet($node as node(), $model as map(*), $facet as xs:
                           let $subsequence := subsequence($stuecke, $i, 30)
                           let $num :=  string-join((substring-before(util:document-name($subsequence[1]), '.xml'), "-", substring-before(util:document-name($subsequence[last()]), '.xml')) )
                           return map {
-                            "display": $num,
-                            "value": $i
+                            "display" := $num,
+                            "value" := $i
                           }
                     
 
